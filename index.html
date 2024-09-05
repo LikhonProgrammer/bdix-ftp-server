@@ -4,42 +4,171 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BDIX Scanner</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&display=swap');
+        
+        body {
+            font-family: "Kode Mono", monospace;
+            background-color: #0f0f23;
+            color: #dbf3ff;
+            text-shadow: 0 0 5px #35daff73;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-grow: 1;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 1em;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        #loading-bar {
+            width: 70%;
+            height: 20px;
+            border: 1px solid #dbf3ff;
+            display: inline-flex;
+            padding: 4px;
+            margin-bottom: 10px;
+        }
+
+        .loading-bar-item {
+            height: 100%;
+            background: #dbf3ff;
+            box-shadow: 0 0 10px #35daffbf;
+            margin-left: 2px;
+        }
+
+        #progressValue {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        #currentUrl {
+            margin-bottom: 20px;
+        }
+
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="number"], select, button {
+            font-family: 'Kode Mono', monospace;
+            background-color: rgba(219, 243, 255, 0.1);
+            color: #dbf3ff;
+            border: 2px solid #dbf3ff;
+            border-radius: 5px;
+            padding: 7px;
+            font-size: 0.9em;
+        }
+
+        button:hover {
+            background-color: rgba(219, 243, 255, 0.2);
+            cursor: pointer;
+        }
+
+        .url-lists {
+            display: flex;
+            gap: 20px;
+        }
+
+        .url-list {
+            flex: 1;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dbf3ff;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(219, 243, 255, 0.05);
+        }
+
+        .url-list li {
+            margin-bottom: 5px;
+        }
+
+        .online { color: #4caf50; }
+        .offline { color: #f44336; }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        footer a {
+            color: #dbf3ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
- <center><h1>BDIX Scanner</h1>
-<h3 style="font-size: 13px;">Get the list of possible available BDIX server from your ISP</h3>
-    <div id="loading-bar"></div>
-    <div id="progressValue">0%</div>
-    <div id="currentUrl"></div>
-    <div style="margin-top: 14px;">
-        Request Timeout: <input type="number" value="5" id="timeOutValue"> sec.
+    <div class="container">
+        <h1>BDIX Scanner</h1>
+        <h3>Get the list of possible available BDIX servers from your ISP</h3>
+        
+        <div id="loading-bar"></div>
+        <div id="progressValue">0%</div>
+        <div id="currentUrl"></div>
+        
+        <div class="control-panel">
+            <div>
+                <label for="timeOutValue">Request Timeout:</label>
+                <input type="number" value="5" id="timeOutValue" min="1" max="60"> sec.
+            </div>
+            <div>
+                <label for="autoscroll">Autoscroll:</label>
+                <input type="checkbox" id="autoscroll" checked>
+            </div>
+            <button id="startStopBtn" onclick="startScanning()">Start</button>
+            <button id="resetBtn" onclick="resetScanning()">Reset</button>
+            <span id="elapsedTime">00:00:00</span>
+            <div>
+                <label for="serverList">Select Server List:</label>
+                <select id="serverList">
+                    <!-- Options will be populated here -->
+                </select>
+            </div>
+        </div>
+        
+        <div class="url-lists">
+            <ul id="urlList" class="url-list">
+                <!-- URLs will be populated here -->
+            </ul>
+            <ul id="urlList2" class="url-list">
+                <!-- URLs will be populated here -->
+            </ul>
+        </div>
     </div>
-    <div style="margin-top: 10px;">
-        <label for="autoscroll">Autoscroll:</label>
-        <input type="checkbox" id="autoscroll" checked>
-        <!-- Set to checked by default -->
-        <button id="startStopBtn" onclick="startScanning()">Start</button>
-        <button id="resetBtn" onclick="resetScanning()">Reset</button>
-        <span id="elapsedTime">00:00:00</span>
-    </div>
-    <div style="margin-top: 10px;">
-        <label for="serverList">Select Server List:</label>
-        <select id="serverList">
-            <!-- Options will be populated here -->
-        </select>
-    </div>
-    <div style="width: 49%; display: inline-block;">
-        <ul id="urlList" style="overflow: scroll; height: 35em; border: 1px solid; overflow-x: auto;">
-            <!-- URLs will be populated here -->
-        </ul>
-    </div>
-    <div style="width: 49%; display: inline-block;">
-        <ul id="urlList2" style="overflow: scroll; height: 35em; border: 1px solid; overflow-x: auto;">
-            <!-- URLs will be populated here -->
-        </ul>
-    </div>
-    <script src="script.js"></script>
-</center>
-</body> 
+
+    <footer>
+        <p>Created by <a href="https://t.me/likhondotxyz" target="_blank">@likhondotxyz</a> | Join us on <a href="https://t.me/likhondotxyz" target="_blank">Telegram</a></p>
+    </footer>
+
+    <script>
+        // Your JavaScript code goes here
+        // Make sure to include all the necessary functions like startScanning(), resetScanning(), etc.
+    </script>
+</body>
 </html>
